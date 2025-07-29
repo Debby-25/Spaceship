@@ -2,40 +2,46 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Load the reduced model and reference features
-model = joblib.load('spaceship_model_reduced.pkl')
-reference_features = joblib.load('spaceship_columns_reduced.pkl')
+# Load the model and reference features
+model = joblib.load('spaceship_model.pkl')
+reference_features = joblib.load('spaceship_columns.pkl')
 
 st.set_page_config(page_title="Spaceship Titanic Predictor", layout="centered")
 st.title("Spaceship Titanic Prediction")
-st.markdown("Enter passenger details or upload a CSV to predict who was transported.")
+st.markdown("Provide passenger details or upload a CSV file to predict if a passenger was transported.")
 
-# Sidebar info
-st.sidebar.title("SPACESHIP TITANIC")
-st.sidebar.info("USER'S TO PREDICT EITHER PASSENGER WERE TRANSPORTED OR NOT.")
+# Sidebar details
+st.sidebar.title("🛰️ Spaceship Titanic")
+st.sidebar.info("User's to Predict whether a passenger was transported to another dimension.")
 
 # --- CSV Upload ---
-st.sidebar.subheader("📂 Batch Prediction")
-uploaded_file = st.sidebar.file_uploader("Upload CSV file", type=["csv"])
+st.sidebar.subheader("📂 Upload CSV for Batch Prediction")
+uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type=["csv"])
+
 if uploaded_file:
-    st.subheader("📊 Batch Prediction Result")
+    st.subheader("Batch Prediction Results")
     batch_df = pd.read_csv(uploaded_file)
     batch_encoded = pd.get_dummies(batch_df)
     batch_encoded = batch_encoded.reindex(columns=reference_features, fill_value=0)
     batch_preds = model.predict(batch_encoded)
     batch_df['Transported'] = batch_preds.astype(bool)
     st.write(batch_df)
-    st.download_button("Download Prediction CSV", batch_df.to_csv(index=False), file_name="batch_prediction.csv")
+    st.download_button(
+        label="Download Results",
+        data=batch_df.to_csv(index=False),
+        file_name="batch_prediction.csv",
+        mime="text/csv"
+    )
 
 # --- Manual Entry Form ---
-with st.form("manual_entry_form"):
-    st.subheader("🧍 Passenger Details")
+with st.form("manual_entry"):
+    st.subheader("👤 Enter Passenger Details")
 
     col1, col2 = st.columns(2)
     with col1:
         homeplanet = st.selectbox("Home Planet", ['Earth', 'Europa', 'Mars'])
         destination = st.selectbox("Destination", ['TRAPPIST-1e', 'PSO J318.5-22', '55 Cancri e'])
-        age = st.slider("Age", 0, 100, 30)
+        age = st.slider("Age", min_value=0, max_value=100, value=30)
         cryosleep = st.radio("CryoSleep", ['True', 'False'])
         vip = st.radio("VIP Status", ['True', 'False'])
 
@@ -52,7 +58,7 @@ with st.form("manual_entry_form"):
 
 # --- Prediction Logic ---
 if submitted:
-    input_dict = {
+    input_data = {
         'HomePlanet': homeplanet,
         'Destination': destination,
         'Age': age,
@@ -67,21 +73,21 @@ if submitted:
         'VRDeck': vrdeck
     }
 
-    input_df = pd.DataFrame([input_dict])
-    st.subheader("Passenger Preview")
+    input_df = pd.DataFrame([input_data])
+    st.subheader("🔍 Passenger Preview")
     st.write(input_df)
 
-    encoded_df = pd.get_dummies(input_df)
-    encoded_df = encoded_df.reindex(columns=reference_features, fill_value=0)
+    encoded_input = pd.get_dummies(input_df)
+    encoded_input = encoded_input.reindex(columns=reference_features, fill_value=0)
 
-    pred = model.predict(encoded_df)[0]
-    pred_proba = model.predict_proba(encoded_df)[0]
-    confidence = round(pred_proba[int(pred)] * 100, 2)
+    prediction = model.predict(encoded_input)[0]
+    prediction_proba = model.predict_proba(encoded_input)[0]
+    confidence = round(prediction_proba[int(prediction)] * 100, 2)
 
     st.subheader("Prediction Result")
-    if pred:
-        st.success("✅ This passenger **was transported** to another dimension!")
+    if prediction:
+        st.success("✅ Passenger was **transported** to another dimension!")
     else:
-        st.warning("❌ This passenger **was not transported.**")
+        st.warning("❌ Passenger was **not transported.**")
 
     st.metric("Confidence Level", f"{confidence}%")
