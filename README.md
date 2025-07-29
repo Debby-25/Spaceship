@@ -30,9 +30,12 @@ Try It Out
 Live Demo: [https://spaceship-wdpdn48gybbyuqeympdm4n.streamlit.app/]
 Code Repository:  [https://github.com/Debby-25/Spaceship]
 
+
 Built By
-Deborah Shakioye Adeniji – Exploring the edge of machine learning and alternate realities.
-[Deborah Shakioye Adeniji](https://www.linkedin.com/in/deborah-shakioye-adeniji-132394345/)  
+Deborah Shakioye Adeniji [Deborah Shakioye Adeniji](https://www.linkedin.com/in/deborah-shakioye-adeniji-132394345/)  
+Machine learning explorer, powered by curiosity and the incredible training at Panthera Tech School.
+Let’s connect and explore how data can shape better financial futures!
+ 
 
 
 
